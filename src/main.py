@@ -106,11 +106,17 @@ def main() -> int:
         try:
             logger.info("Lightime application running...")
 
-            # TODO: Start GUI interface here
-            # For now, just keep the application alive
-            import time
-            while app_context.running:
-                time.sleep(1)
+            # Start GUI interface
+            from gui.application import GUIManager
+            gui_manager = GUIManager(app_context)
+
+            if not gui_manager.initialize():
+                logger.error("Failed to initialize GUI")
+                return 1
+
+            # Run GUI application (blocks until quit)
+            return_code = gui_manager.run()
+            return return_code
 
         except KeyboardInterrupt:
             logger.info("Received keyboard interrupt")
