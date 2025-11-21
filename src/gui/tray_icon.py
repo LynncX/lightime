@@ -4,16 +4,32 @@ System tray icon for Lightime Pomodoro Timer
 
 import gi
 gi.require_version('Gtk', '3.0')
-gi.require_version('AppIndicator3', '0.1')
 
 from typing import Optional
 from gi.repository import Gtk, GdkPixbuf
 
+# Try AyatanaAppIndicator3 first (modern Ubuntu 22.04+)
+APPINDICATOR_AVAILABLE = False
+APPINDICATOR_TYPE = None
+
 try:
-    from gi.repository import AppIndicator3
+    gi.require_version('AyatanaAppIndicator3', '0.1')
+    from gi.repository import AyatanaAppIndicator3
     APPINDICATOR_AVAILABLE = True
-except ImportError:
-    APPINDICATOR_AVAILABLE = False
+    APPINDICATOR_TYPE = "AyatanaAppIndicator3"
+    print("Using AyatanaAppIndicator3 (modern)")
+except (ImportError, ValueError):
+    try:
+        # Fallback to legacy AppIndicator3 for older systems
+        gi.require_version('AppIndicator3', '0.1')
+        from gi.repository import AppIndicator3
+        APPINDICATOR_AVAILABLE = True
+        APPINDICATOR_TYPE = "AppIndicator3"
+        print("Using AppIndicator3 (legacy fallback)")
+    except (ImportError, ValueError):
+        print("Neither AyatanaAppIndicator3 nor AppIndicator3 available")
+        APPINDICATOR_AVAILABLE = False
+        APPINDICATOR_TYPE = None
 
 from ..app_context import ApplicationContext
 from ..models.session import SessionStatus, SessionType
@@ -35,21 +51,47 @@ class TrayIcon:
         # Try to initialize tray icon
         self._initialize()
 
+    def _get_indicator_status(self):
+        """Get the appropriate IndicatorStatus class"""
+        if APPINDICATOR_TYPE == "AyatanaAppIndicator3":
+            return AyatanaAppIndicator3.IndicatorStatus
+        elif APPINDICATOR_TYPE == "AppIndicator3":
+            return AppIndicator3.IndicatorStatus
+        else:
+            return None
+
     def _initialize(self) -> None:
         """Initialize the tray icon"""
         if not APPINDICATOR_AVAILABLE:
-            print("AppIndicator3 not available, tray icon disabled")
+            print(f"No AppIndicator library available (tray icon disabled)")
             return
 
         try:
+            # Get the appropriate indicator library
+            if APPINDICATOR_TYPE == "AyatanaAppIndicator3":
+                Indicator = AyatanaAppIndicator3.Indicator
+                IndicatorCategory = AyatanaAppIndicator3.IndicatorCategory
+            elif APPINDICATOR_TYPE == "AppIndicator3":
+                Indicator = AppIndicator3.Indicator
+                IndicatorCategory = AppIndicator3.IndicatorCategory
+            else:
+                print(f"Unknown AppIndicator type: {APPINDICATOR_TYPE}")
+                return
+
+            # Get the correct status class
+            IndicatorStatus = self._get_indicator_status()
+            if IndicatorStatus is None:
+                print("No IndicatorStatus available")
+                return
+
             # Create app indicator
-            self.indicator = AppIndicator3.Indicator.new(
+            self.indicator = Indicator.new(
                 "lightime",
                 "alarm-clock",  # Default icon theme name
-                AppIndicator3.IndicatorCategory.APPLICATION_STATUS
+                IndicatorCategory.APPLICATION_STATUS
             )
 
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+            self.indicator.set_status(IndicatorStatus.ACTIVE)
             self.indicator.set_attention_icon("alarm-clock-symbolic")
 
             # Create context menu
@@ -399,12 +441,16 @@ class TrayIcon:
     def _set_attention_indicator(self) -> None:
         """Set indicator to attention state"""
         if self.initialized and self.indicator:
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.ATTENTION)
+            IndicatorStatus = self._get_indicator_status()
+            if IndicatorStatus:
+                self.indicator.set_status(IndicatorStatus.ATTENTION)
 
     def _reset_indicator(self) -> None:
         """Reset indicator to active state"""
         if self.initialized and self.indicator:
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.ACTIVE)
+            IndicatorStatus = self._get_indicator_status()
+            if IndicatorStatus:
+                self.indicator.set_status(IndicatorStatus.ACTIVE)
 
     def update_window_visibility(self, visible: bool) -> None:
         """Update show/hide window menu item"""
@@ -414,7 +460,9 @@ class TrayIcon:
     def cleanup(self) -> None:
         """Cleanup resources"""
         if self.initialized and self.indicator:
-            self.indicator.set_status(AppIndicator3.IndicatorStatus.PASSIVE)
+            IndicatorStatus = self._get_indicator_status()
+            if IndicatorStatus:
+                self.indicator.set_status(IndicatorStatus.PASSIVE)
 
         # Clear event handlers
         if hasattr(self, '_setup_event_handlers'):
