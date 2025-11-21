@@ -13,8 +13,14 @@ from pathlib import Path
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).parent))
 
-from app_context import ApplicationContext, initialize_app, shutdown_app
-from utils.error_handling import ErrorSeverity
+try:
+    from app_context import ApplicationContext, initialize_app, shutdown_app
+    from utils.error_handling import ErrorSeverity
+except ImportError as e:
+    # Try relative imports as fallback
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+    from src.app_context import ApplicationContext, initialize_app, shutdown_app
+    from src.utils.error_handling import ErrorSeverity
 
 
 def setup_logging(debug: bool = False) -> None:

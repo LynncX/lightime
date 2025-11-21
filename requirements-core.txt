@@ -1,0 +1,7 @@
+# Core dependencies (non-GUI)
+PyYAML>=6.0
+watchdog>=3.0.0
+psutil>=5.9.0
+
+# Optional dependencies for enhanced functionality
+python-dateutil>=2.8.0  # Enhanced date handling for logs
