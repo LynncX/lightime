@@ -1,0 +1,14 @@
+# Lightime requirements for conda/pip installation
+# Note: PyGObject and cairo/pycairo should be installed system-wide
+
+# Core dependencies
+PyYAML>=6.0
+watchdog>=3.0.0
+psutil>=5.9.0
+
+# Optional dependencies for enhanced functionality
+python-dateutil>=2.8.0  # Enhanced date handling for logs
+
+# Optional GUI dependencies (install if system libs don't work)
+# pycairo>=1.20.0  # Uncomment only if not installed system-wide
+# PyGObject>=3.42.0  # Uncomment only if not installed system-wide

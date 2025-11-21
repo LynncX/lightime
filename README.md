@@ -16,11 +16,69 @@ A lightweight, always-on-top Pomodoro timer for Linux desktops with session logg
 
 ## Installation
 
-### System Dependencies
+### 🚀 Super Easy Installation (Recommended for Beginners)
+
+**One command to install everything:**
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/your-username/lightime/main/install.sh | bash
+```
+
+That's it! The installer will:
+- ✅ Detect your Linux distribution automatically
+- ✅ Install all required system dependencies
+- ✅ Download and setup Lightime
+- ✅ Create desktop menu entry
+- ✅ Test everything works
+
+### 📋 Alternative Installation Options
+
+**Option 1: Download and Install**
+```bash
+wget https://raw.githubusercontent.com/your-username/lightime/main/install.sh
+chmod +x install.sh
+./install.sh
+```
+
+**Option 2: Git Clone**
+```bash
+git clone https://github.com/your-username/lightime.git
+cd lightime
+chmod +x install.sh
+./install.sh
+```
+
+**Option 3: Manual Installation**
+See [QUICK_INSTALL.md](QUICK_INSTALL.md) for detailed manual instructions.
+
+### 🏃‍♂️ After Installation
+
+Once installed, start Lightime with:
+```bash
+cd ~/lightime
+./run.sh
+```
+
+Or find it in your application menu: **Applications → Office → Lightime**
+
+### Manual Installation
+
+#### System Dependencies
 
 Install the required system packages for your Linux distribution:
 
-**Ubuntu/Debian:**
+**Ubuntu/Debian (22.04+):**
+```bash
+sudo apt update
+sudo apt install python3 python3-pip python3-dev \
+    libgirepository1.0-dev gcc libcairo2-dev pkg-config \
+    python3-gi python3-gi-cairo gir1.2-gtk-3.0 \
+    libnotify4 libnotify-dev \
+    libayatana-appindicator3-dev \
+    xdotool
+```
+
+**Ubuntu/Debian (older systems):**
 ```bash
 sudo apt update
 sudo apt install python3 python3-pip python3-dev \
@@ -37,7 +95,7 @@ sudo dnf install python3 python3-pip python3-devel \
     gobject-introspection-devel gcc cairo-devel pkg-config \
     python3-gobject python3-gobject-devel \
     libnotify-devel \
-    libappindicator-gtk3 \
+    libayatana-appindicator3 \
     xdotool
 ```
 
@@ -45,24 +103,43 @@ sudo dnf install python3 python3-pip python3-devel \
 ```bash
 sudo pacman -S python python-pip python-gobject \
     cairo pkgconf \
-    libnotify libappindicator-gtk3 \
+    libnotify libayatana-appindicator \
     xdotool
 ```
 
-### Python Dependencies
+#### Python Dependencies
 
+**Core dependencies (no GUI):**
 ```bash
+pip install -r requirements-core.txt
+```
+
+**Full dependencies (with GUI):**
+```bash
+# Note: PyGObject and pycairo usually installed system-wide
 pip install -r requirements.txt
 ```
 
-### Installation
+### Verify Installation
+
+Test your setup with the quick test script:
 
 ```bash
-# Install in development mode
-pip install -e .
+python quick_test.py
+```
 
-# Or run directly
-python src/main.py
+Expected output:
+```
+✅ PyYAML available
+✅ Watchdog available
+✅ psutil available
+✅ GTK3 available
+✅ AyatanaAppIndicator3 available
+✅ Configuration system working
+✅ Session management working
+
+🎉 Lightime core functionality is working!
+🖥️  GUI should work too - try: python src/main.py
 ```
 
 ## Usage
@@ -253,49 +330,156 @@ The application includes built-in performance monitoring with configurable limit
 
 ## Troubleshooting
 
+### Quick Setup Verification
+
+First, verify your installation:
+```bash
+python quick_test.py
+```
+
+If you see ✅ for all items, your setup is working correctly!
+
 ### Common Issues
 
-1. **GTK3 Import Errors**
-   ```bash
-   # Install system dependencies (see Installation section)
-   # Ensure libgirepository1.0-dev and python3-gi are installed
-   ```
+#### 1. Package Installation Errors
 
-2. **Tray Icon Not Appearing**
-   ```bash
-   # Install appindicator3 support
-   sudo apt install libappindicator3-dev gir1.2-appindicator3-0.1
-   ```
+**"No matching distribution found for cairo"**
+```bash
+# Use the correct package name
+pip install pycairo  # NOT "cairo"
 
-3. **Screen Lock Not Working**
-   ```bash
-   # Install xdotool for key sending
-   sudo apt install xdotool
+# Or use the requirements file
+pip install -r requirements.txt
+```
 
-   # Or ensure loginctl is available (systemd)
-   sudo systemctl status systemd-logind
-   ```
+**"Unmet dependencies" with AppIndicator**
+```bash
+# Ubuntu 22.04+:
+sudo apt install libayatana-appindicator3-dev
 
-4. **Performance Issues**
-   - Check performance limits in configuration
-   - Export diagnostics: `python src/main.py --diagnostics debug.json`
-   - Monitor resource usage with system tools
+# Older Ubuntu/Debian:
+sudo apt install libappindicator3-dev
+```
 
-### Debugging
+#### 2. GTK3 Import Errors
 
-Enable debug logging for detailed output:
+```bash
+# Install system dependencies
+sudo apt install python3-gi python3-gi-cairo gir1.2-gtk-3.0
+
+# Verify installation
+python -c "import gi; gi.require_version('Gtk', '3.0'); from gi.repository import Gtk; print('GTK3 working')"
+```
+
+#### 3. Tray Icon Not Appearing
+
+```bash
+# Install correct AppIndicator library for your system
+# Ubuntu 22.04+:
+sudo apt install libayatana-appindicator3-dev
+
+# Older systems:
+sudo apt install libappindicator3-dev gir1.2-appindicator3-0.1
+
+# Verify installation
+python -c "
+import gi
+try:
+    gi.require_version('AyatanaAppIndicator3', '0.1')
+    from gi.repository import AyatanaAppIndicator3
+    print('✅ AyatanaAppIndicator3 working')
+except:
+    try:
+        gi.require_version('AppIndicator3', '0.1')
+        from gi.repository import AppIndicator3
+        print('✅ AppIndicator3 working (legacy)')
+    except:
+        print('❌ No AppIndicator available')
+"
+```
+
+#### 4. Screen Lock Not Working
+
+```bash
+# Install xdotool for key sending
+sudo apt install xdotool
+
+# Test xdotool
+xdotool key Super+L
+
+# Alternative: Use loginctl (systemd systems)
+loginctl lock-session
+```
+
+#### 5. Core Functionality Issues
+
+```bash
+# Test core components separately
+python test_models_only.py
+
+# Check basic imports
+python -c "
+from models.config import LightimeConfig
+from models.session import SessionManager
+print('✅ Core models working')
+"
+```
+
+#### 6. Performance Issues
+
+- Check performance limits in `~/.config/lightime/config.yaml`
+- Export diagnostics: `python src/main.py --diagnostics debug.json`
+- Monitor resource usage:
+  ```bash
+  htop  # For CPU/memory usage
+  lsof -p <lightime_pid>  # For file handles
+  ```
+
+### Debug Mode
+
+Enable detailed logging:
 ```bash
 python src/main.py --debug
 ```
 
-Check the error log file:
+### Error Logs
+
+Check the application error log:
 ```bash
 cat ~/.local/share/lightime/lightime_errors.log
 ```
 
-Export diagnostic information:
+### Export Diagnostics
+
+For comprehensive debugging information:
 ```bash
 python src/main.py --diagnostics full_diagnostics.json
+
+# View the diagnostics file
+cat full_diagnostics.json | jq .  # If jq is installed
+```
+
+### Getting Help
+
+If you encounter issues:
+
+1. **Run the quick test**: `python quick_test.py`
+2. **Check the error log**: `cat ~/.local/share/lightime/lightime_errors.log`
+3. **Export diagnostics**: `python src/main.py --diagnostics debug.json`
+4. **Try minimal installation**: Use `requirements-core.txt` for basic functionality
+
+### Fallback: GUI-less Mode
+
+If GUI issues persist, Lightime still works as a command-line tool:
+
+```bash
+# Run tests
+python src/main.py --test
+
+# Get help
+python src/main.py --help
+
+# Core functionality works without GUI
 ```
 
 ## System Requirements
