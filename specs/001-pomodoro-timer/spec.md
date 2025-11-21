@@ -138,12 +138,11 @@ User can freely set any Pomodoro duration according to their preference and work
 - **FR-002**: Users MUST be able to set custom timer durations in minutes before starting a session
 - **FR-003**: System MUST provide configurable visual warning modes (flash, resize, color change) with user-defined timing through config.yaml
 - **FR-018**: System MUST allow users to configure icon size, warning timing, and menu options through config.yaml
-- **FR-019**: System MUST provide brief, non-annoying warnings that alert users without continuous disruption
+- **FR-019**: System MUST provide brief, non-annoying warnings that alert users without continuous disruption, with maximum flash duration of 0.5 seconds and maximum frequency of 1 flash per second
 - **FR-004**: System MUST automatically lock the screen when the timer reaches zero by sending Super+L key combination
 - **FR-005**: System MUST count down in real-time and display the remaining time accurately
 - **FR-006**: Users MUST be able to start, stop, and restart timer sessions
-- **FR-007**: System MUST handle timer state persistence with user-configurable resume threshold (default 5 minutes)
-- **FR-020**: System MUST restart session if interruption duration exceeds configured threshold
+- **FR-007**: System MUST handle timer state persistence with user-configurable resume threshold (default 5 minutes); sessions MUST restart if interruption duration exceeds threshold and resume automatically if within threshold
 - **FR-021**: System MUST provide default values for all configurable settings when config.yaml is missing or incomplete
 - **FR-008**: Users MUST be able to input timer duration through preset buttons and custom text input
 - **FR-009**: System MUST validate timer duration inputs to enforce 1-240 minute range
@@ -202,7 +201,7 @@ User can freely set any Pomodoro duration according to their preference and work
 - **SC-002**: Timer icon remains visible 100% of time during active sessions regardless of other application usage
 - **SC-003**: Visual warning appears within 1 second of the 2-minute mark with 99% accuracy
 - **SC-004**: Screen locks automatically within 2 seconds of timer reaching zero in 95% of sessions
-- **SC-005**: Users can set any timer duration between 1 minute and 4 hours with 100% accuracy
+- **SC-005**: Users can set any timer duration between 1 minute and 240 minutes (4 hours) with 100% accuracy
 - **SC-006**: Timer countdown accuracy maintains within ±1 second over a 25-minute standard session
 - **SC-007**: Application uses minimal system resources (<1% CPU, <50MB memory) during timer operation
 - **SC-008**: 90% of users successfully complete timer sessions without manual intervention in first week of use

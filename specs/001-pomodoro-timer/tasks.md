@@ -199,11 +199,26 @@ description: "Task list for Lightime Pomodoro Timer implementation"
 - [ ] T073 [P] Implement application icon and theme integration
 - [ ] T074 [P] Add multi-monitor support for timer positioning
 - [ ] T075 [P] Create system resource monitoring in src/utils/performance_monitor.py
+- [ ] T083 [P] Implement CPU and memory usage tracking in src/utils/performance_monitor.py
+- [ ] T084 [P] Add startup time measurement in src/main.py
+- [ ] T085 [P] Create performance alert system for resource limit violations
+- [ ] T086 [P] Test performance compliance with <1% CPU and <50MB memory requirements in src/tests/performance/test_resource_usage.py
 - [ ] T076 [P] Add application lifecycle management (startup, shutdown, interruption recovery)
 - [ ] T077 [P] Create user documentation and help system
 - [ ] T078 [P] Implement crash reporting and error recovery
-- [ ] T079 [P] Add accessibility features for screen readers
-- [ ] T080 [P] Create packaging scripts for Snap, Flatpak, and deb packages
+- [ ] T079 [P] Implement accessibility support for screen readers in src/gui/accessibility.py
+- [ ] T080 [P] Add keyboard navigation support for all GUI elements in src/gui/keyboard_navigation.py
+- [ ] T081 [P] Create high contrast theme support in src/gui/themes.py
+- [ ] T082 [P] Add accessibility testing in src/tests/accessibility/test_screen_reader_support.py
+- [ ] T083 [P] Implement CPU and memory usage tracking in src/utils/performance_monitor.py
+- [ ] T084 [P] Add startup time measurement in src/main.py
+- [ ] T085 [P] Create performance alert system for resource limit violations
+- [ ] T086 [P] Test performance compliance with <1% CPU and <50MB memory requirements in src/tests/performance/test_resource_usage.py
+- [ ] T088 [P] Create user documentation and help system
+- [ ] T089 [P] Implement crash reporting and error recovery
+- [ ] T090 [P] Create packaging scripts for Snap, Flatpak, and deb packages
+- [ ] T091 [P] Implement log file space monitoring and cleanup in src/utils/log_management.py
+- [ ] T092 [P] Add disk space error handling for logging operations in src/models/session_logger.py
 
 ---
 
@@ -296,18 +311,18 @@ With multiple developers:
 
 ## Total Task Summary
 
-- **Total Tasks**: 80 tasks
-- **Setup Phase**: 6 tasks (7.5%)
-- **Foundational Phase**: 13 tasks (16.3%)
-- **User Story 1**: 10 tasks (12.5%)
-- **User Story 2**: 8 tasks (10.0%)
-- **User Story 3**: 7 tasks (8.8%)
-- **User Story 4**: 9 tasks (11.3%)
-- **User Story 5**: 8 tasks (10.0%)
-- **User Story 6**: 9 tasks (11.3%)
-- **Polish Phase**: 10 tasks (12.5%)
+- **Total Tasks**: 92 tasks
+- **Setup Phase**: 6 tasks (6.5%)
+- **Foundational Phase**: 13 tasks (14.1%)
+- **User Story 1**: 10 tasks (10.9%)
+- **User Story 2**: 8 tasks (8.7%)
+- **User Story 3**: 7 tasks (7.6%)
+- **User Story 4**: 9 tasks (9.8%)
+- **User Story 5**: 8 tasks (8.7%)
+- **User Story 6**: 9 tasks (9.8%)
+- **Polish Phase**: 22 tasks (23.9%)
 
-**Parallel Opportunities**: 48 tasks (60%) can be executed in parallel
+**Parallel Opportunities**: 54 tasks (58.7%) can be executed in parallel
 
 **Independent Test Criteria**:
 - US1: Timer starts, displays countdown, can be stopped manually

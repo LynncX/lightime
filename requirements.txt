@@ -1,0 +1,18 @@
+# Core dependencies
+PyYAML>=6.0
+watchdog>=3.0.0
+psutil>=5.9.0
+
+# Optional dependencies for enhanced functionality
+python-dateutil>=2.8.0  # Enhanced date handling for logs
+
+# Development dependencies (uncomment for development)
+# pytest>=7.0.0
+# pytest-cov>=4.0.0
+# black>=22.0.0
+# flake8>=5.0.0
+# mypy>=1.0.0
+
+# Testing dependencies (uncomment for testing)
+# pytest-xvfb>=3.0.0  # For X11 virtual display testing
+# python-dbusmock>=0.31.0  # For D-Bus mocking

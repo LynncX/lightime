@@ -1,0 +1,41 @@
+# Lightime Pomodoro Timer - Default Configuration
+# This file contains default settings that will be used if user configuration is missing
+
+config_version: "1.0.0"
+
+# Core Timer Settings
+default_duration: 25          # Default session length in minutes (1-240)
+warning_minutes: 2            # Warning trigger time (1-10)
+resume_threshold_minutes: 5   # Max interruption duration for auto-resume (1-60)
+
+# Display Settings
+time_display_format: "MINUTES_SECONDS"  # MINUTES_SECONDS | MINUTES_ONLY
+icon_size:
+  width: 64                   # Icon width in pixels (16-256)
+  height: 64                  # Icon height in pixels (16-256)
+
+# Warning Behavior
+visual_warnings:
+  mode: "FLASH"               # FLASH | RESIZE | COLOR_CHANGE
+  flash_interval_ms: 500      # Flash interval in milliseconds (100-2000)
+  resize_factor: 1.2          # Size multiplier for resize mode (1.1-2.0)
+  warning_color: "#FFA500"    # Color for color change mode (hex format)
+
+# Keyboard Shortcuts
+keyboard_shortcuts:
+  start_25min: "Ctrl+Alt+P"   # Quick 25-minute timer
+  start_custom: "Ctrl+Alt+O"  # Open custom timer dialog
+  stop_session: "Escape"      # Stop current session (when focused)
+
+# Preset Durations (in minutes)
+preset_durations: [15, 25, 45, 60]  # Quick access options (max 10 items)
+
+# Logging Configuration
+log_file_format: "CSV"        # CSV | JSON | PLAIN_TEXT
+log_file_path: "~/.local/share/lightime/sessions.csv"  # Custom log location
+auto_log_sessions: true       # Enable automatic session logging
+
+# Performance Settings
+max_cpu_usage: 1.0           # Maximum CPU usage percentage
+max_memory_mb: 50            # Maximum memory usage in MB
+startup_timeout_seconds: 2   # Maximum startup time in seconds

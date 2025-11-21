@@ -9,7 +9,7 @@ Every feature MUST prioritize user productivity and non-intrusive operation; Int
 All user-customizable behaviors MUST be configurable via config.yaml; Default configurations MUST provide excellent out-of-box experience; Changes to configuration MUST take effect without requiring application restart where technically feasible; Configuration schema MUST support user-friendly editing with clear documentation.
 
 ### III. Platform-Specific Integration
-Application MUST fully embrace Ubuntu 22.04 desktop environment conventions; System integration features (screen lock, window management, keyboard shortcuts) MUST work reliably across different desktop environments; Dependencies MUST be minimal and respect standard Linux package management practices.
+Application MUST fully embrace Linux desktop environment conventions with primary support for Ubuntu 22.04+ and best-effort compatibility for Debian, Fedora, Arch, and other GTK3-based distributions; System integration features (screen lock, window management, keyboard shortcuts) MUST work reliably across different desktop environments; Dependencies MUST be minimal and respect standard Linux package management practices.
 
 ### IV. Data Integrity & Observability
 All Pomodoro sessions MUST be accurately logged with timestamps and durations; Log data MUST be stored in user-accessible formats suitable for analysis and visualization; Users MUST retain full ownership and access to their productivity data; Data structures MUST support long-term archival and migration.
