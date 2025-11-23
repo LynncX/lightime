@@ -5,6 +5,9 @@
 
 set -e
 
+# Trap Ctrl+C and other signals for clean exit
+trap 'print_warning "\nInstallation interrupted by user. Cleaning up..."; cleanup; exit 130' INT TERM
+
 # Colors for output
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -14,11 +17,16 @@ PURPLE='\033[0;35m'
 CYAN='\033[0;36m'
 NC='\033[0m' # No Color
 
-# Animation function
+# Animation function with signal checking
 spin() {
     local -a marks=('⠋' '⠙' '⠹' '⠸' '⠼' '⠴' '⠦' '⠧' '⠇' '⠏')
     while kill -0 "$pid" 2>/dev/null; do
         for mark in "${marks[@]}"; do
+            # Check if we've been interrupted
+            if ! kill -0 "$pid" 2>/dev/null; then
+                printf "\r${YELLOW}⚠${NC} $2... Interrupted!\n"
+                return 1
+            fi
             printf "\r${CYAN}%s${NC} $1... $mark" "$2"
             sleep 0.1
         done
@@ -55,6 +63,24 @@ print_error() {
 
 print_step() {
     echo -e "${PURPLE}[STEP $1/7]${NC} $2"
+}
+
+# Cleanup function for interrupted operations
+cleanup() {
+    # Kill any background processes
+    if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
+        kill "$pid" 2>/dev/null || true
+    fi
+
+    # Clean up any temporary files
+    if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
+        rm -rf "$TEMP_DIR" 2>/dev/null || true
+    fi
+
+    # Reset any changed terminal settings
+    stty sane 2>/dev/null || true
+
+    print_status "Cleanup completed"
 }
 
 # Check if running as root
@@ -224,21 +250,22 @@ clone_repo() {
 
     case "$INTERNET_REGION" in
         "china")
-            # China-friendly mirrors - update these with actual mirror URLs
+            # Always try GitHub first, then China-friendly mirrors as fallbacks
             REPO_URLS=(
+                "$DEFAULT_GITHUB_REPO"
                 "${REPO_URL:-https://gitee.com/lynncx/lightime.git}"
                 "https://hub.fastgit.xyz/lynncx/lightime.git"
-                "$DEFAULT_GITHUB_REPO"
             )
-            print_status "Using China-friendly repository mirrors..."
+            print_status "Will try GitHub first, then China-friendly mirrors as fallbacks..."
             ;;
         "international"|"unknown"|*)
-            # International repositories
+            # International repositories - GitHub first, then alternatives
             REPO_URLS=(
                 "$DEFAULT_GITHUB_REPO"
                 "https://gitlab.com/lynncx/lightime.git"
+                "${REPO_URL:-https://gitee.com/lynncx/lightime.git}"
             )
-            print_status "Using international repositories..."
+            print_status "Using GitHub as primary repository with fallbacks..."
             ;;
     esac
 
