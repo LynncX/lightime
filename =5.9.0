@@ -1,0 +1,9 @@
+Defaulting to user installation because normal site-packages is not writeable
+Collecting watchdog
+  Downloading watchdog-6.0.0-py3-none-manylinux2014_x86_64.whl (79 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 79.1/79.1 KB 295.3 kB/s eta 0:00:00
+Collecting psutil
+  Downloading psutil-7.1.3-cp36-abi3-manylinux2010_x86_64.manylinux_2_12_x86_64.manylinux_2_28_x86_64.whl (263 kB)
+     ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 263.3/263.3 KB 222.2 kB/s eta 0:00:00
+Installing collected packages: watchdog, psutil
+Successfully installed psutil-7.1.3 watchdog-6.0.0

@@ -12,10 +12,17 @@ from typing import Optional
 
 from gi.repository import Gtk, Gdk, Gio
 
-from ..app_context import ApplicationContext
-from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
-from .timer_window import TimerWindow
-from .tray_icon import TrayIcon
+try:
+    from ..app_context import ApplicationContext
+    from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+    from .timer_window import TimerWindow
+    from .tray_icon import TrayIcon
+except ImportError:
+    # Fallback for module execution
+    from src.app_context import ApplicationContext
+    from src.utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+    from gui.timer_window import TimerWindow
+    from gui.tray_icon import TrayIcon
 
 
 class LightimeApplication(Gtk.Application):

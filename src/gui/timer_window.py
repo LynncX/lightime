@@ -13,10 +13,17 @@ from typing import Optional, Callable
 
 from gi.repository import Gtk, Gdk, GLib, Pango
 
-from ..app_context import ApplicationContext
-from ..models.session import SessionStatus, SessionType
-from ..utils.helpers import format_time_display, calculate_session_progress
-from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+try:
+    from ..app_context import ApplicationContext
+    from ..models.session import SessionStatus, SessionType
+    from ..utils.helpers import format_time_display, calculate_session_progress
+    from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+except ImportError:
+    # Fallback for module execution
+    from src.app_context import ApplicationContext
+    from src.models.session import SessionStatus, SessionType
+    from src.utils.helpers import format_time_display, calculate_session_progress
+    from src.utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
 
 
 class TimerWindow(Gtk.Window):

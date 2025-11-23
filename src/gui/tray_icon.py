@@ -31,9 +31,15 @@ except (ImportError, ValueError):
         APPINDICATOR_AVAILABLE = False
         APPINDICATOR_TYPE = None
 
-from ..app_context import ApplicationContext
-from ..models.session import SessionStatus, SessionType
-from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+try:
+    from ..app_context import ApplicationContext
+    from ..models.session import SessionStatus, SessionType
+    from ..utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
+except ImportError:
+    # Fallback for module execution
+    from src.app_context import ApplicationContext
+    from src.models.session import SessionStatus, SessionType
+    from src.utils.error_handling import handle_error, ErrorSeverity, ErrorCategory
 
 
 class TrayIcon:
@@ -203,7 +209,10 @@ class TrayIcon:
         timer_engine = self.app_context.timer_engine
 
         # Subscribe to timer events
-        from ..timer.engine import TimerEvent
+        try:
+            from ..timer.engine import TimerEvent
+        except ImportError:
+            from src.timer.engine import TimerEvent
 
         timer_engine.add_event_handler(TimerEvent.SESSION_STARTED, self._on_session_started)
         timer_engine.add_event_handler(TimerEvent.SESSION_PAUSED, self._on_session_paused)
@@ -339,7 +348,10 @@ class TrayIcon:
                 timer_engine.cancel_session()
 
             # Shutdown application
-            from ..app_context import shutdown_app
+            try:
+                from ..app_context import shutdown_app
+            except ImportError:
+                from src.app_context import shutdown_app
             shutdown_app()
 
             # Quit GTK main loop if running

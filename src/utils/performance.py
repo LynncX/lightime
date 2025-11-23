@@ -11,7 +11,11 @@ from dataclasses import dataclass, field
 import os
 import gc
 
-from ..models.config import PerformanceSettings
+try:
+    from ..models.config import PerformanceSettings
+except ImportError:
+    # Fallback for module execution
+    from src.models.config import PerformanceSettings
 
 
 @dataclass
@@ -356,3 +360,16 @@ class PerformanceMonitor:
             self._snapshots.clear()
             self._alerts.clear()
         self._startup_time = datetime.now()
+
+    def shutdown(self) -> None:
+        """Shutdown performance monitor and clean up resources"""
+        try:
+            self.stop_monitoring()
+
+            with self._lock:
+                self._alert_callbacks.clear()
+                # Keep snapshots and alerts for final analysis
+                # Don't clear them as they might be needed for diagnostics
+
+        except Exception as e:
+            print(f"Error during PerformanceMonitor shutdown: {e}")

@@ -16,7 +16,7 @@ try:
     from .utils.system_integration import SystemIntegration
     from .utils.helpers import setup_signal_handlers
     from .timer.engine import TimerEngine, TimerEvent
-    from .logging.session_logger import SessionLogger
+    from .session_logging.session_logger import SessionLogger
 except ImportError:
     # Fallback for direct execution
     from models.config import LightimeConfig
@@ -27,7 +27,7 @@ except ImportError:
     from utils.system_integration import SystemIntegration
     from utils.helpers import setup_signal_handlers
     from timer.engine import TimerEngine, TimerEvent
-    from logging.session_logger import SessionLogger
+    from session_logging.session_logger import SessionLogger
 
 
 class ApplicationContext:

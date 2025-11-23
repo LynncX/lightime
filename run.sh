@@ -40,19 +40,19 @@ fallback_mode() {
     case $choice in
         1)
             echo "Running diagnostics..."
-            "$SCRIPT_DIR/lightime-env/bin/python" "$SCRIPT_DIR/src/main.py" --diagnostics "/tmp/lightime_diagnostics.json"
+            source ~/miniforge3/bin/activate lightime 2>/dev/null || python3 -m src.main --diagnostics "/tmp/lightime_diagnostics.json"
             ;;
         2)
             echo "Running integration tests..."
-            "$SCRIPT_DIR/lightime-env/bin/python" "$SCRIPT_DIR/src/main.py" --test
+            source ~/miniforge3/bin/activate lightime 2>/dev/null || python3 -m src.main --test
             ;;
         3)
             echo "Exporting configuration..."
-            "$SCRIPT_DIR/lightime-env/bin/python" "$SCRIPT_DIR/src/main.py" --diagnostics "/tmp/lightime_config.json"
+            source ~/miniforge3/bin/activate lightime 2>/dev/null || python3 -m src.main --diagnostics "/tmp/lightime_config.json"
             ;;
         4)
             echo "Attempting to start anyway..."
-            "$SCRIPT_DIR/lightime-env/bin/python" "$SCRIPT_DIR/src/main.py" "$@"
+            source ~/miniforge3/bin/activate lightime 2>/dev/null || python3 -m src.main "$@"
             ;;
         5)
             echo "Exiting."
@@ -65,9 +65,19 @@ fallback_mode() {
     esac
 }
 
-# Check if virtual environment exists
-if [ ! -d "$SCRIPT_DIR/lightime-env" ]; then
-    echo "❌ Virtual environment not found. Please run install.sh first."
+# Check for conda environment first (prioritize conda)
+if command -v conda >/dev/null 2>&1 && conda info --envs | grep -q "lightime"; then
+    USE_CONDA=true
+    VENV_PATH=""
+    echo "✓ Found conda environment 'lightime'"
+elif [ -d "$SCRIPT_DIR/lightime-env" ]; then
+    USE_CONDA=false
+    VENV_PATH="$SCRIPT_DIR/lightime-env"
+    echo "✓ Found virtual environment at $VENV_PATH"
+else
+    echo "❌ No suitable Python environment found."
+    echo "   Option 1: Ensure conda environment 'lightime' exists"
+    echo "   Option 2: Run install.sh to create virtual environment"
     exit 1
 fi
 
@@ -77,8 +87,20 @@ if [ ! -f "$SCRIPT_DIR/src/main.py" ]; then
     exit 1
 fi
 
-# Activate virtual environment
-source "$SCRIPT_DIR/lightime-env/bin/activate"
+# Activate the appropriate Python environment
+if [ "$USE_CONDA" = true ]; then
+    # Use conda environment
+    source ~/miniforge3/bin/activate lightime 2>/dev/null || source ~/miniconda3/bin/activate lightime 2>/dev/null || {
+        echo "❌ Failed to activate conda environment 'lightime'"
+        echo "   Please ensure miniforge/miniconda is installed and lightime environment exists"
+        exit 1
+    }
+    PYTHON_CMD="python3"
+else
+    # Use virtual environment
+    source "$VENV_PATH/bin/activate"
+    PYTHON_CMD="python3"
+fi
 
 # Change to script directory
 cd "$SCRIPT_DIR"
@@ -114,11 +136,11 @@ fi
 echo "🔍 Pre-flight checks..."
 
 # Check Python version
-python_version=$(python3 -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
+python_version=$($PYTHON_CMD -c "import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')")
 echo "✓ Python version: $python_version"
 
 # Check for required GUI libraries
-if python3 -c "import gi; gi.require_version('Gtk', '3.0')" 2>/dev/null; then
+if $PYTHON_CMD -c "import gi; gi.require_version('Gtk', '3.0')" 2>/dev/null; then
     echo "✓ GTK 3.0 available"
 else
     echo "⚠️  GTK 3.0 not available - GUI may not work"
@@ -135,8 +157,8 @@ fi
 echo "🚀 Starting Lightime Pomodoro Timer..."
 echo
 
-# Run the application with proper error handling
-if "$SCRIPT_DIR/lightime-env/bin/python" "$SCRIPT_DIR/src/main.py" "$@"; then
+# Run the application with proper error handling (as module to avoid namespace collision)
+if $PYTHON_CMD -m src.main "$@"; then
     echo "✅ Lightime finished successfully"
 else
     exit_code=$?
