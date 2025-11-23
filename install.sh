@@ -1,4 +1,4 @@
-#!/bin/bash
+!/bin/bash
 
 # Lightime Pomodoro Timer - One-Click Installation Script
 # This script installs Lightime from scratch for beginners
@@ -220,14 +220,14 @@ clone_repo() {
 
     # Define repository URLs based on region accessibility
     # Set REPO_URL environment variable to override default
-    DEFAULT_GITHUB_REPO="${REPO_URL:-https://github.com/your-username/lightime.git}"
+    DEFAULT_GITHUB_REPO="${REPO_URL:-https://github.com/lynncx/lightime.git}"
 
     case "$INTERNET_REGION" in
         "china")
             # China-friendly mirrors - update these with actual mirror URLs
             REPO_URLS=(
-                "${REPO_URL:-https://gitee.com/your-username/lightime.git}"
-                "https://hub.fastgit.xyz/your-username/lightime.git"
+                "${REPO_URL:-https://gitee.com/lynncx/lightime.git}"
+                "https://hub.fastgit.xyz/lynncx/lightime.git"
                 "$DEFAULT_GITHUB_REPO"
             )
             print_status "Using China-friendly repository mirrors..."
@@ -236,7 +236,7 @@ clone_repo() {
             # International repositories
             REPO_URLS=(
                 "$DEFAULT_GITHUB_REPO"
-                "https://gitlab.com/your-username/lightime.git"
+                "https://gitlab.com/lynncx/lightime.git"
             )
             print_status "Using international repositories..."
             ;;
@@ -410,7 +410,7 @@ setup_offline_installation() {
     if [ ! -d "$INSTALL_DIR" ]; then
         print_error "Lightime directory not found at $INSTALL_DIR"
         print_error "Please download and extract the repository manually first:"
-        print_error "1. Download from: https://github.com/your-username/lightime/releases"
+        print_error "1. Download from: https://github.com/lynncx/lightime/releases"
         print_error "2. Extract to: $HOME/lightime"
         print_error "3. Run this script again"
         exit 1
