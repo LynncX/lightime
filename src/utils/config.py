@@ -9,7 +9,11 @@ from typing import Optional, Dict, Any
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
 
-from ..models.config import LightimeConfig, ConfigPaths
+try:
+    from ..models.config import LightimeConfig, ConfigPaths
+except ImportError:
+    # Fallback for direct execution
+    from models.config import LightimeConfig, ConfigPaths
 
 
 class ConfigFileHandler(FileSystemEventHandler):

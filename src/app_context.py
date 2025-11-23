@@ -7,15 +7,27 @@ from typing import Optional, Dict, Any, Callable
 from pathlib import Path
 import atexit
 
-from .models.config import LightimeConfig
-from .models.session import SessionRecord
-from .utils.config import ConfigManager
-from .utils.performance import PerformanceMonitor
-from .utils.error_handling import ErrorManager, ErrorSeverity
-from .utils.system_integration import SystemIntegration
-from .utils.helpers import setup_signal_handlers
-from .timer.engine import TimerEngine, TimerEvent
-from .logging.session_logger import SessionLogger
+try:
+    from .models.config import LightimeConfig
+    from .models.session import SessionRecord
+    from .utils.config import ConfigManager
+    from .utils.performance import PerformanceMonitor
+    from .utils.error_handling import ErrorManager, ErrorSeverity
+    from .utils.system_integration import SystemIntegration
+    from .utils.helpers import setup_signal_handlers
+    from .timer.engine import TimerEngine, TimerEvent
+    from .logging.session_logger import SessionLogger
+except ImportError:
+    # Fallback for direct execution
+    from models.config import LightimeConfig
+    from models.session import SessionRecord
+    from utils.config import ConfigManager
+    from utils.performance import PerformanceMonitor
+    from utils.error_handling import ErrorManager, ErrorSeverity
+    from utils.system_integration import SystemIntegration
+    from utils.helpers import setup_signal_handlers
+    from timer.engine import TimerEngine, TimerEvent
+    from logging.session_logger import SessionLogger
 
 
 class ApplicationContext:

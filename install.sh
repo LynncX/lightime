@@ -6,7 +6,21 @@
 set -e
 
 # Trap Ctrl+C and other signals for clean exit
-trap 'print_warning "\nInstallation interrupted by user. Cleaning up..."; cleanup; exit 130' INT TERM
+cleanup_and_exit() {
+    local exit_code=$?
+    if [ $exit_code -eq 130 ]; then
+        print_warning "\n✋ Installation interrupted by user."
+    else
+        print_warning "\n⚠️ Installation terminated unexpectedly."
+    fi
+
+    print_status "Cleaning up..."
+    cleanup
+    print_status "Cleanup completed. Exiting."
+    exit $exit_code
+}
+
+trap cleanup_and_exit INT TERM
 
 # Colors for output
 RED='\033[0;31m'
@@ -67,20 +81,37 @@ print_step() {
 
 # Cleanup function for interrupted operations
 cleanup() {
-    # Kill any background processes
+    # Kill any background processes and their children
     if [ -n "$pid" ] && kill -0 "$pid" 2>/dev/null; then
-        kill "$pid" 2>/dev/null || true
+        # Kill process group to clean up child processes too
+        kill -TERM -$pid 2>/dev/null || true
+        kill -TERM "$pid" 2>/dev/null || true
+        sleep 0.1
+        kill -KILL -$pid 2>/dev/null || true
+        kill -KILL "$pid" 2>/dev/null || true
     fi
+
+    # Kill common network processes that might be hanging
+    pkill -f "git " 2>/dev/null || true
+    pkill -f "pip " 2>/dev/null || true
+    pkill -f "apt " 2>/dev/null || true
+    pkill -f "dnf " 2>/dev/null || true
+    pkill -f "pacman " 2>/dev/null || true
 
     # Clean up any temporary files
     if [ -n "$TEMP_DIR" ] && [ -d "$TEMP_DIR" ]; then
         rm -rf "$TEMP_DIR" 2>/dev/null || true
     fi
 
-    # Reset any changed terminal settings
-    stty sane 2>/dev/null || true
+    # Clean up common temp files
+    rm -f /tmp/session_*.cast 2>/dev/null || true
 
-    print_status "Cleanup completed"
+    # Reset any changed terminal settings and show cursor
+    stty sane 2>/dev/null || true
+    tput cnorm 2>/dev/null || true  # Show cursor
+    printf "\n"  # New line for cleaner exit
+
+    return 0
 }
 
 # Check if running as root
@@ -276,23 +307,77 @@ clone_repo() {
     fi
 
     if [ -d "$INSTALL_DIR" ]; then
-        print_warning "Lightime directory already exists. Updating..."
-        cd "$INSTALL_DIR"
+        # Check if it's a proper git repository
+        if [ -d "$INSTALL_DIR/.git" ]; then
+            print_warning "Lightime repository already exists. Checking if it needs updating..."
+            cd "$INSTALL_DIR"
 
-        # Try updating with current remote first
-        if git pull origin main 2>/dev/null || git pull origin master 2>/dev/null; then
-            print_success "Repository updated successfully"
-        else
-            print_warning "Could not update from current remote - trying alternative mirrors..."
+            # Check if it's the correct repository
+            current_remote=$(git remote get-url origin 2>/dev/null || echo "none")
+            expected_repo="lynncx/lightime"
 
-            # Try alternative remotes
-            for url in "${REPO_URLS[@]}"; do
-                print_status "Trying mirror: $url"
-                if git remote set-url origin "$url" 2>/dev/null && git pull origin main 2>/dev/null; then
-                    print_success "Successfully updated from: $url"
-                    break
+            if [[ "$current_remote" == *"$expected_repo"* ]]; then
+                print_status "Correct repository found: $current_remote"
+
+                # Try updating with current remote first
+                print_status "Checking for updates..."
+                if git fetch origin 2>/dev/null; then
+                    local_commit=$(git rev-parse HEAD 2>/dev/null)
+                    remote_commit=$(git rev-parse origin/main 2>/dev/null || git rev-parse origin/master 2>/dev/null)
+
+                    if [ "$local_commit" != "$remote_commit" ]; then
+                        print_status "New updates available, pulling changes..."
+                        if git pull origin main 2>/dev/null || git pull origin master 2>/dev/null; then
+                            print_success "Repository updated successfully"
+                        else
+                            print_warning "Could not update - trying alternative mirrors..."
+                            # Try alternative remotes
+                            for url in "${REPO_URLS[@]}"; do
+                                print_status "Trying mirror: $url"
+                                if git remote set-url origin "$url" 2>/dev/null && git pull origin main 2>/dev/null; then
+                                    print_success "Successfully updated from: $url"
+                                    break
+                                fi
+                            done
+                        fi
+                    else
+                        print_success "Repository is up to date"
+                    fi
+                else
+                    print_warning "Could not fetch updates - working with local version"
                 fi
-            done
+            else
+                print_warning "Directory exists but is not the correct Lightime repository"
+                print_warning "Current remote: $current_remote"
+                print_warning "Expected repository containing: $expected_repo"
+
+                read -p "Do you want to remove it and clone fresh? (y/N): " -n 1 -r
+                echo
+                if [[ $REPLY =~ ^[Yy]$ ]]; then
+                    print_status "Removing existing directory..."
+                    cd "$HOME"
+                    rm -rf "$INSTALL_DIR"
+                    print_status "Directory removed, will proceed with fresh clone"
+                else
+                    print_error "Installation cancelled. Please manually fix the repository."
+                    exit 1
+                fi
+            fi
+        else
+            print_warning "Lightime directory exists but is not a git repository"
+            print_warning "This might be from a previous failed installation"
+
+            read -p "Do you want to remove it and clone fresh? (y/N): " -n 1 -r
+            echo
+            if [[ $REPLY =~ ^[Yy]$ ]]; then
+                print_status "Removing existing directory..."
+                cd "$HOME"
+                rm -rf "$INSTALL_DIR"
+                print_status "Directory removed, will proceed with fresh clone"
+            else
+                print_error "Installation cancelled. Please check the directory contents."
+                exit 1
+            fi
         fi
     else
         print_status "Cloning Lightime repository..."

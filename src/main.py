@@ -4,6 +4,7 @@
 Main entry point for Lightime Pomodoro Timer
 """
 
+import os
 import sys
 import argparse
 import logging
@@ -80,6 +81,11 @@ def main() -> int:
     setup_logging(args.debug)
 
     logger = logging.getLogger(__name__)
+
+    # Check if running in asciinema or other recording environment
+    if "ASCIINEMA_REC" in os.environ:
+        logger.warning("Running under asciinema recording - some features may be limited")
+
     logger.info("Starting Lightime Pomodoro Timer v1.0.0")
 
     try:
@@ -99,14 +105,22 @@ def main() -> int:
             logger.error("Failed to start application")
             return 1
 
-        # Setup graceful shutdown handler
+        # Setup graceful shutdown handler with better signal handling
         def signal_handler(signum, frame):
-            logger.info(f"Received signal {signum}, shutting down...")
-            shutdown_app()
-            sys.exit(0)
+            logger.info(f"Received signal {signum}, shutting down gracefully...")
+            try:
+                shutdown_app()
+            except Exception as e:
+                logger.error(f"Error during shutdown: {e}")
+            finally:
+                sys.exit(0)
 
-        signal.signal(signal.SIGINT, signal_handler)
-        signal.signal(signal.SIGTERM, signal_handler)
+        # Set signal handlers only if not already set by recording tools
+        try:
+            signal.signal(signal.SIGINT, signal_handler)
+            signal.signal(signal.SIGTERM, signal_handler)
+        except Exception as e:
+            logger.warning(f"Could not set signal handlers (possibly due to recording environment): {e}")
 
         # Main application loop
         try:
@@ -126,17 +140,31 @@ def main() -> int:
 
         except KeyboardInterrupt:
             logger.info("Received keyboard interrupt")
+            return 0
+        except Exception as e:
+            logger.error(f"GUI error: {e}")
+            return 1
 
-        # Stop the application
-        app_context.stop()
-        return 0
+        finally:
+            # Stop the application
+            app_context.stop()
+            return 0
 
+    except ImportError as e:
+        logger.error(f"Import error: {e}")
+        logger.error("Please ensure all dependencies are installed: pip install -r requirements.txt")
+        return 1
     except Exception as e:
         logger.error(f"Failed to start Lightime: {e}")
+        import traceback
+        logger.debug(f"Full traceback: {traceback.format_exc()}")
         return 1
     finally:
         # Ensure cleanup
-        shutdown_app()
+        try:
+            shutdown_app()
+        except Exception as e:
+            logger.error(f"Error during final cleanup: {e}")
 
 
 def run_tests(app_context: ApplicationContext) -> int:
