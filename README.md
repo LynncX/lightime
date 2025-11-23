@@ -21,7 +21,7 @@ A lightweight, always-on-top Pomodoro timer for Linux desktops with session logg
 **One command to install everything:**
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/your-username/lightime/main/install.sh | bash
+curl -fsSL https://raw.githubusercontent.com/lynncx/lightime/main/install.sh | bash
 ```
 
 That's it! The installer will:
@@ -35,14 +35,14 @@ That's it! The installer will:
 
 **Option 1: Download and Install**
 ```bash
-wget https://raw.githubusercontent.com/your-username/lightime/main/install.sh
+wget https://raw.githubusercontent.com/lynncx/lightime/main/install.sh
 chmod +x install.sh
 ./install.sh
 ```
 
 **Option 2: Git Clone**
 ```bash
-git clone https://github.com/your-username/lightime.git
+git clone https://github.com/lynncx/lightime.git
 cd lightime
 chmod +x install.sh
 ./install.sh
